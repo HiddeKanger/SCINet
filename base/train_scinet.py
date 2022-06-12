@@ -1,12 +1,17 @@
 import numpy as np
 import pandas as pd
 import numpy as np
-
 import random
 from preprocess_data import preprocess
-from SCINet import scinet_builder
 import tensorflow as tf
 from time import time
+import os
+import sys
+
+WORKDIR_PATH = os.path.dirname(os.path.realpath(__file__))
+sys.path.insert(1, WORKDIR_PATH)
+from SCINet import scinet_builder
+
 
 def check_Loss_Last(X_test, Y_test, data_type: str):
     pred_len = Y_test.shape[1]
@@ -47,7 +52,7 @@ def train_scinet(   X_train: np.array,
     #build SCINET model
     #callback: stops training when val_loss has been decreasing for past 25 epochs
     callback = tf.keras.callbacks.EarlyStopping(monitor = 'val_loss', 
-                                                patience = 25, 
+                                                patience = 150, 
                                                 restore_best_weights = True)
 
 
