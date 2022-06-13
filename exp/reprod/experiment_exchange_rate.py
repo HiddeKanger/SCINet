@@ -33,6 +33,14 @@ Y_LEN = 12
 OVERLAPPING = True
 STANDARDIZE = True
 
+standardization_settings = {'per_sample': True,
+                            'leaky': False,
+                            'mode': 'log', #only if per sample is false, choose from log, sqrt or lin
+                            'sqrt_val': 2, #of course only if mode is sqrt
+                            'total mean': [],
+                            'total std': []}
+
+
 RANDOM_SEED = 4321#None
 
 if RANDOM_SEED != None:
@@ -75,7 +83,8 @@ results = preprocess(   data = data,
                         X_LEN = X_LEN,
                         Y_LEN = Y_LEN,
                         OVERLAPPING = OVERLAPPING,
-                        STANDARDIZE = STANDARDIZE
+                        STANDARDIZE = STANDARDIZE,
+                        standardization_settings = standardization_settings
                         )
 
 model, history, X_train , y_train, X_val, y_val, X_test, y_test = train_scinet( X_train = results["X_train"].astype('float32'),

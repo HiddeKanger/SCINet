@@ -26,4 +26,6 @@ The hyperparameter settings can be found at https://github.com/cure-lab/SCINet/b
 # Running the experiments
 
 In order to run the experiments, make sure to use an environment in which Tensorflow 2.x is installed. Running can be done by executing 
-"python experiment_X.py" from the command line. 
+"python experiment_X.py" from the command line.
+If you want to run experiments for 150 epochs make sure that 'patience' is turned off in the train_scinet function in the train_scinet.py
+file in the base folder.
