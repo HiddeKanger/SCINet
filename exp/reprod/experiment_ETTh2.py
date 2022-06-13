@@ -30,7 +30,7 @@ test_frac = 0.2
 
 X_LEN = 48
 Y_LEN = 24
-RANDOM_SEED = None
+RANDOM_SEED = 4321 #None
 OVERLAPPING = True
 STANDARDIZE = True
 
@@ -54,7 +54,7 @@ for idx, pair in enumerate(pairs):
  
 #================ Training ====================
 
-EPOCHS = 10
+EPOCHS = 150
 BATCH_SIZE = 16
 HID_SIZE = 8
 NUM_LEVELS = 3
@@ -100,8 +100,7 @@ model, history, X_train , y_train, X_val, y_val, X_test, y_test = train_scinet( 
 
 train_loss = history.history['loss']
 val_loss = history.history['val_loss']
-target = 0.288
-
+target = 0.288 #value of MAE loss in SCINet paper
 X = np.arange(len(train_loss))
 
 plt.plot(X, train_loss, label='Training set')

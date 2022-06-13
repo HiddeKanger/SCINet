@@ -98,7 +98,7 @@ model, history, X_train , y_train, X_val, y_val, X_test, y_test = train_scinet( 
 
 train_loss = history.history['loss']
 val_loss = history.history['val_loss']
-target = 0.379
+target = 0.379 #value of MAE of paper
 
 X = np.arange(len(train_loss))
 

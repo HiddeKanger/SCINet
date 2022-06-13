@@ -28,12 +28,12 @@ val_frac = 0.2
 test_frac = 0.2
 
 X_LEN = 168
-Y_LEN = 20
+Y_LEN = 12
 
 OVERLAPPING = True
 STANDARDIZE = True
 
-RANDOM_SEED = None
+RANDOM_SEED = 4321#None
 
 if RANDOM_SEED != None:
     random.seed(RANDOM_SEED)
@@ -55,9 +55,14 @@ data = {}
 for idx, pair in enumerate(pairs):
     data[pair] = df.iloc[idx]
 
-EPOCHS = 10
-BATCH_SIZE = 350
-N_BLOCKS = 2 
+EPOCHS = 150
+BATCH_SIZE = 4
+HID_SIZE = 0.125
+NUM_LEVELS = 3
+KERNEL_SIZE = 5
+DROPOUT = 0.5
+LEARNING_RATE = 0.005
+PROBABILISTIC = False
 
 # Process data:
 results = preprocess(   data = data, 
@@ -79,16 +84,24 @@ model, history, X_train , y_train, X_val, y_val, X_test, y_test = train_scinet( 
                                                                                 y_val = results["y_val"].astype('float32'),
                                                                                 X_test = results["X_test"].astype('float32'),
                                                                                 y_test = results["y_test"].astype('float32'),
-                                                                                X_LEN = X_LEN,
-                                                                                Y_LEN = Y_LEN,
                                                                                 epochs = EPOCHS,
                                                                                 batch_size = BATCH_SIZE,
-                                                                                n_blocks = N_BLOCKS)
+                                                                                X_LEN = X_LEN,
+                                                                                Y_LEN = [Y_LEN],
+                                                                                output_dim = [results["X_train"].shape[2]],
+                                                                                selected_columns = None,
+                                                                                hid_size= HID_SIZE,
+                                                                                num_levels= NUM_LEVELS,
+                                                                                kernel = KERNEL_SIZE,
+                                                                                dropout = DROPOUT,
+                                                                                loss_weights= [1],
+                                                                                learning_rate = LEARNING_RATE,
+                                                                                probabilistic = PROBABILISTIC)
 
 
 train_loss = history.history['loss']
 val_loss = history.history['val_loss']
-target = 0.229
+target = 0.229 #value of MAE loss in paper
 
 X = np.arange(len(train_loss))
 
