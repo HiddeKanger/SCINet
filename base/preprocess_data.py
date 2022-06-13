@@ -63,6 +63,7 @@ def preprocess( data: dict,
                 Y_LEN: int,
                 OVERLAPPING: bool,
                 STANDARDIZE: bool,
+                standardization_settings: dict,
                 ):
     
     print(f"Starting data preprocessing...")
@@ -101,26 +102,8 @@ def preprocess( data: dict,
 
 
     if STANDARDIZE:
-        ## TRAINING SET
-        mean = np.swapaxes(np.dstack([np.mean(X_train, axis = 1)] * X_LEN), 1, 2)
-        std = np.swapaxes(np.dstack([np.std(X_train, axis = 1)] * X_LEN), 1, 2)
-   
-        X_train = (X_train - mean)/std
-        y_train = (y_train - mean[:, :Y_LEN, :])/std[:, :Y_LEN, :]
- 
-        ## VALIDATION SET
-        mean = np.swapaxes(np.dstack([np.mean(X_val, axis = 1)] * X_LEN), 1, 2)
-        std = np.swapaxes(np.dstack([np.std(X_val, axis = 1)] * X_LEN), 1, 2)
-    
-        X_val = (X_val - mean)/std
-        y_val = (y_val - mean[:, :Y_LEN, :])/std[:, :Y_LEN, :]
-
-        ## TEST SET
-        mean = np.swapaxes(np.dstack([np.mean(X_test, axis = 1)] * X_LEN), 1, 2)
-        std = np.swapaxes(np.dstack([np.std(X_test, axis = 1)] * X_LEN), 1, 2)
-
-        X_test = (X_test - mean)/std
-        y_test = (y_test - mean[:, :Y_LEN, :])/std[:, :Y_LEN, :]
+        X_train, y_train, X_val, y_val, X_test, y_test = \
+            standardize(standardization_settings, [[X_train,y_train],[X_val,y_val],[X_test,y_test]], X_LEN, Y_LEN)
 
 
     return {"X_train": X_train,
@@ -157,6 +140,63 @@ def create_samples(data: pd.DataFrame, X_LEN: int, Y_LEN: int, OVERLAPPING: bool
     random.shuffle(samples)
 
     return samples
+
+def standardize(st_settings, data, X_len, y_len):
+
+
+    if st_settings['per_sample']:
+
+        for dat in data:
+
+            mean = np.swapaxes(np.dstack([np.mean(dat[0], axis = 1)] * X_len), 1, 2)
+            std = np.swapaxes(np.dstack([np.std(dat[0], axis = 1)] * X_len), 1, 2)
+            std[std == 0] = 1
+
+            dat[0] = (dat[0] - mean) / std
+            dat[1] = (dat[1] - mean[:,:y_len,:]) / std[:,:y_len,:]
+
+            std = np.std(dat[0], axis=1)
+            results = np.where(std == 0)
+
+            dat[0] = np.delete(dat[0], results[0], axis=0)
+            dat[1] = np.delete(dat[1], results[0], axis=0)
+
+    elif st_settings['leaky']:
+        
+        n_stocks = data[0][0].shape[2]
+
+        for i in range(n_stocks):
+            mean = st_settings['total mean'][i]
+            std = st_settings['total std'][i]
+
+            data[0][0][:,:,i] = (data[0][0][:,:,i] - mean) / std
+            data[0][1][:,:,i] = (data[0][1][:,:,i] - mean) / std
+            data[1][0][:,:,i] = (data[1][0][:,:,i] - mean) / std
+            data[1][1][:,:,i] = (data[1][1][:,:,i] - mean) / std
+            data[2][0][:,:,i] = (data[2][0][:,:,i] - mean) / std
+            data[2][1][:,:,i] = (data[2][1][:,:,i] - mean) / std
+
+    else:
+
+        for dat in data:
+
+            if st_settings['mode'] == 'log':
+
+                dat[0] = np.sign(dat[0]) * np.log10(np.abs(dat[0])+1)
+                dat[1] = np.sign(dat[1]) * np.log10(np.abs(dat[1])+1)
+
+            elif st_settings['mode'] == 'sqrt':
+
+                root_num = st_settings['sqrt_val']
+                dat[0] = np.sign(dat[0]) * np.power(np.abs(dat[0]),1/root_num)
+                dat[1] = np.sign(dat[1]) * np.power(np.abs(dat[1]),1/root_num)
+
+            mean = np.mean(dat[0], axis = (0,1))
+            std = np.std(dat[0] , axis = (0,1))
+            dat[0] = (dat[0]-mean) / std
+            dat[1] = (dat[1]-mean) / std
+
+    return data[0][0], data[0][1], data[1][0], data[1][1], data[2][0], data[2][1]
 
 if __name__ == "__main__":
     #expected dataformat of individual pairs
