@@ -72,7 +72,6 @@ def plot_loss_curves(n_epochs, losses):
     fig, ax = plt.subplots(1,1, figsize = (6,4))
 
     for i,loss in enumerate(losses):
-        print(i)
         
         ax.plot(np.arange(n_epochs),loss, c = colors[i], linestyle = linestyles[i], label = labels[i])
 
@@ -84,3 +83,26 @@ def plot_loss_curves(n_epochs, losses):
     fig.suptitle('Training and validation loss during training', fontsize = 16)
     plt.tight_layout()
 
+def plot_prediction_examples(n_samples, x_samples,y_predictions, y_true):
+
+    fig, axes = plt.subplots(y_true.shape[2], n_samples, figsize=(20,6))
+
+    labels = ['SCINet input', 'SCINet predictions', 'Ground truths']
+
+    x_val_x = np.arange(x_samples.shape[1])
+    x_val_y = np.arange(x_samples.shape[1],x_samples.shape[1]+y_predictions.shape[1])
+    x_tot = len(x_val_x)+ len(x_val_y)
+
+    for i in range(y_true.shape[2]):
+        for j in range(n_samples):
+            line_x, = axes[i,j].plot(x_val_x, x_samples[j,:,i], c = 'black', label = labels[0])
+            line_y_true, = axes[i,j].plot(x_val_y, y_true[j,:,i], c = 'black', linestyle = 'dashed', label = labels[1])
+            line_y_pred, = axes[i,j].plot(x_val_y, y_predictions[j,:,i], c = 'red', label = labels[2])
+            axes[i,0].set_ylabel('Feature {}'.format(i+1), rotation = 90, fontsize = 16)
+            axes[i,j].set_xticks(np.arange(0,x_tot+1,10))
+            axes[i,j].set_yticks([])
+            axes[2,j].set_xlabel('Time in (a.u.)')
+
+    fig.suptitle('Predictions on the features made by SCINet', fontsize = 20)
+    plt.legend(handles = [line_x,line_y_true,line_y_pred],  loc = 0, bbox_to_anchor= (-2.7,3.72,0,0), ncol = 3, fontsize = 14)
+    plt.tight_layout()
