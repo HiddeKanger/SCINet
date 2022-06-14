@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # General settings
-N_timesteps = 10000
+N_timesteps = 50000
 N_features = 3
 time = np.arange(N_timesteps)
 

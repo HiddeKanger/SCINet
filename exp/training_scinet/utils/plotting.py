@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_raw_data(raw_data, ax1_x_len, ax2_x_len):
+def plot_raw_data(raw_data, x_lens):
 
     time = raw_data[:,0]
     n_samples = raw_data.shape[0]
@@ -11,9 +11,9 @@ def plot_raw_data(raw_data, ax1_x_len, ax2_x_len):
     labels = ['Feature I','Feature II','Feature III']
     xlabels = ['Time in (a.u.)','Time in (a.u.)','Time in (a.u.)','Period in (a.u.)']
     ylabels = 'Amplitude in (a.u.)'
-    subtitels = ['First {} timesteps of the different features'.format(ax1_x_len),
-             'First {} timesteps of the different features'.format(ax2_x_len),
-             'All timesteps of the different features',
+    subtitels = ['First {} timesteps of the different features'.format(x_lens[0]),
+             'First {} timesteps of the different features'.format(x_lens[1]),
+             'First {} timesteps of the different features'.format(x_lens[2]),
              'Fourier transforms of the different time series'
              ]
 
@@ -21,9 +21,9 @@ def plot_raw_data(raw_data, ax1_x_len, ax2_x_len):
 
     for i in range(1,raw_data.shape[1]):
 
-        axes[0].plot(time[:ax1_x_len],raw_data[:ax1_x_len,i], c = colors[i-1], label = labels[i-1])
-        axes[1].plot(time[:ax2_x_len],raw_data[:ax2_x_len,i], c = colors[i-1], label = labels[i-1])
-        axes[2].plot(time,raw_data[:,i], c = colors[i-1], label = labels[i-1])
+        axes[0].plot(time[:x_lens[0]],raw_data[:x_lens[0],i], c = colors[i-1], label = labels[i-1])
+        axes[1].plot(time[:x_lens[1]],raw_data[:x_lens[1],i], c = colors[i-1], label = labels[i-1])
+        axes[2].plot(time[:x_lens[2]],raw_data[:x_lens[2],i], c = colors[i-1], label = labels[i-1])
 
         fft = np.fft.fft(raw_data[:,i])
         fftfreq = np.fft.fftfreq(n_samples, dt)
@@ -61,3 +61,26 @@ def plot_preprocessed_data(X,y):
     ax.set_ylabel('Amplitude in (a.u.)')
     ax.grid()
     ax.legend(ncol = 6, loc = 'upper center', fontsize = 13)
+
+def plot_loss_curves(n_epochs, losses):
+
+    labels = ['Scinet 1 training loss', 'Scinet 2 training loss',\
+              'Scinet 1 validation loss',' Scinet 2 validation loss']
+    colors = ['black', 'red', 'black', 'red']
+    linestyles = ['dashed','dashed','solid','solid']
+
+    fig, ax = plt.subplots(1,1, figsize = (6,4))
+
+    for i,loss in enumerate(losses):
+        print(i)
+        
+        ax.plot(np.arange(n_epochs),loss, c = colors[i], linestyle = linestyles[i], label = labels[i])
+
+    ax.grid()
+    ax.legend(ncol =2, loc = 'upper center')
+    ax.set_xlabel('Epoch number')
+    ax.set_ylabel('Mean absolute error')
+
+    fig.suptitle('Training and validation loss during training', fontsize = 16)
+    plt.tight_layout()
+
