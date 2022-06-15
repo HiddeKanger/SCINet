@@ -337,10 +337,9 @@ def scinet_builder( output_len: list,
     assert len(output_dim) == len(output_len), "output_dim list does not equal length output_len"
     assert input_len % 2**num_levels == 0, f"input_len (X_LEN) does not match depth {input_len} % 2**{num_levels} != 0"
 
-
     if selected_columns is not None:
         assert all([output_dim[i] == len(selected_columns[i])
-            for i in range(len(output_dim))]) #Making sure inputs are coherent
+            for i in range(len(output_dim))]), 'Output_dims and selected columns do not correspond' #Making sure inputs are coherent
 
     inputs = tf.keras.Input(shape = (input_len, input_dim))
 

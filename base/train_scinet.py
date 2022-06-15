@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 import numpy as np
 import random
-from preprocess_data import preprocess
 import tensorflow as tf
 from time import time
 import os
