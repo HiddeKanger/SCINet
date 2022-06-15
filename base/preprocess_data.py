@@ -102,7 +102,7 @@ def preprocess( data: dict,
 
 
     if STANDARDIZE:
-        X_train, y_train, X_val, y_val, X_test, y_test = \
+        X_train, y_train, X_val, y_val, X_test, y_test, mean ,std = \
             standardize(standardization_settings, [[X_train,y_train],[X_val,y_val],[X_test,y_test]], X_LEN, Y_LEN)
 
 
@@ -191,12 +191,12 @@ def standardize(st_settings, data, X_len, y_len):
                 dat[0] = np.sign(dat[0]) * np.power(np.abs(dat[0]),1/root_num)
                 dat[1] = np.sign(dat[1]) * np.power(np.abs(dat[1]),1/root_num)
 
-            mean = np.mean(dat[0], axis = (0,1))
-            std = np.std(dat[0] , axis = (0,1))
+            mean = np.mean(dat[0][0], axis = (0,1))
+            std = np.std(dat[0][0] , axis = (0,1))
             dat[0] = (dat[0]-mean) / std
             dat[1] = (dat[1]-mean) / std
 
-    return data[0][0], data[0][1], data[1][0], data[1][1], data[2][0], data[2][1]
+    return data[0][0], data[0][1], data[1][0], data[1][1], data[2][0], data[2][1], mean ,std
 
 if __name__ == "__main__":
     #expected dataformat of individual pairs
