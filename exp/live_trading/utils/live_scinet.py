@@ -6,58 +6,51 @@ from time import sleep
 
 import tensorflow as tf
 
-from base.SCINet import SCINet
 
 from collections import deque
+from base.SCINet import scinet_builder
 
 
+## TODO
 def construct_model_architecture(   input_dim,
-                                    input_len = 168,
-                                    output_len = 20,
-                                    n_blocks = 2):
-    # Model cannot be loaded direclty, it has to be reconstructed and applied the weights:
-    inputs = tf.keras.Input(shape = (input_len, input_dim))
-        
-    x_mid = SCINet( output_len= output_len,
-                    input_len= input_len,
-                    input_dim = input_dim,
-                    num_levels = 2, 
-                    single_step_output_One = False, name = 'Block1')(inputs)
-
-    if n_blocks == 2:
-        # New block
-        new_input = tf.concat([inputs, x_mid], 1) # Concatenate
-        new_input = tf.keras.layers.Cropping1D((output_len, 0))(new_input) # remove rest
-        assert new_input.shape[1] == input_len # Make sure all is good
-
-        x_final = SCINet(output_len= output_len,
-        input_len= input_len,
-        input_dim = input_dim,
-        num_levels = 2, 
-        single_step_output_One = True, name = 'Block2')(new_input)
-
-        model = tf.keras.Model(inputs = inputs, outputs = [x_mid, x_final])
-        model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate=0.01),
-         loss = {'Block1' : "mae",
-          'Block2' : "mae"})
-
-    else:
-        model = tf.keras.Model(inputs = inputs, outputs = x_mid)
-        model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate=0.01), loss = "mae")
-  
+                                    X_LEN = 240,
+                                    Y_LEN = [24, 24, 24],
+                                    output_dim = [15, 15, 1],
+                                    hid_size = 32,
+                                    num_levels = 2,
+                                    kernel = 5,
+                                    dropout = 0.5,
+                                    loss_weights = [0.2, 0.2, 0.6],
+                                    probabilistic = False):
+                                    
+    
+    model = scinet_builder(  output_len = Y_LEN,
+                             output_dim = output_dim,
+                             input_len = X_LEN,
+                             input_dim = input_dim,
+                             hid_size = hid_size,
+                             num_levels = num_levels,
+                             kernel = kernel,
+                             dropout = dropout,
+                             loss_weights = loss_weights, 
+                             probabilistic = probabilistic,
+                             selected_columns = None)
+    
     return model
 
 def load_model( model_weights,
                 n_features,
-                input_len = 168, 
-                output_len = 20, 
-                n_blocks = 2):
+                output_dim,
+                input_len,
+                output_len,
+                loss_weights):
     'Returns the model'
 
     model = construct_model_architecture(   input_dim = n_features,
-                                            input_len = input_len,
-                                            output_len = output_len,
-                                            n_blocks = n_blocks)
+                                            X_LEN = input_len,
+                                            Y_LEN = output_len,
+                                            output_dim = output_dim,
+                                            loss_weights = loss_weights)
 
     if model_weights != None:
         print(f"Loading in model weights... @ {model_weights}")
@@ -130,9 +123,11 @@ def preprocess_sample(data, X_LEN, symbols, data_format):
 class LiveSCINET:
     def __init__(   self, 
                     prepper, 
-                    n_features, 
+                    n_features,
+                    output_dim, 
                     X_LEN = 168, 
-                    Y_LEN = 20, 
+                    Y_LEN = [20, 20],
+                    loss_weights = [0.5, 0.5], 
                     threshold = 0.05, 
                     model_weights = None,
                     begin_cash = 1000) -> None:
@@ -142,6 +137,7 @@ class LiveSCINET:
         Parameters:
         -= strategyID: unique identifier for strategy
         """
+       
         self.prepper = prepper
  
         self.n_features = n_features
@@ -149,7 +145,6 @@ class LiveSCINET:
         self.X_LEN = X_LEN
         self.Y_LEN = Y_LEN
 
-        self.n_blocks = 2
         self.model_weights = model_weights
         self.threshold = threshold
 
@@ -157,7 +152,8 @@ class LiveSCINET:
                                 model_weights = self.model_weights,
                                 input_len = self.X_LEN,
                                 output_len = self.Y_LEN,
-                                n_blocks = self.n_blocks,
+                                output_dim=  output_dim,
+                                loss_weights = loss_weights
                                 )
 
         print(self.model.summary())
@@ -172,7 +168,7 @@ class LiveSCINET:
                                 "close",
                     ]
 
-        self.current_times = deque([], maxlen = self.X_LEN + self.Y_LEN)
+        self.current_times = deque([], maxlen = self.X_LEN + max(self.Y_LEN))
         self.current_sample = []
 
         self.prediction = None

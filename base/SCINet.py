@@ -334,6 +334,7 @@ def scinet_builder( output_len: list,
         Needed for probabilistic model (weight KL distance).
     '''
     # Num examples needed in the case of using probabilistic layer.
+    print('Building model...')
     assert len(output_dim) == len(output_len), "output_dim list does not equal length output_len"
     assert input_len % 2**num_levels == 0, f"input_len (X_LEN) does not match depth {input_len} % 2**{num_levels} != 0"
 
@@ -341,6 +342,7 @@ def scinet_builder( output_len: list,
         assert all([output_dim[i] == len(selected_columns[i])
             for i in range(len(output_dim))]), 'Output_dims and selected columns do not correspond' #Making sure inputs are coherent
 
+    
     inputs = tf.keras.Input(shape = (input_len, input_dim))
 
     X = inputs
@@ -349,11 +351,9 @@ def scinet_builder( output_len: list,
     # is provided, it has just one stack.
     input_dims = [input_dim] + output_dim
 
-   
 
     for i in range(len(output_dim)):
         
-
         assert X.shape[1] == input_len # Sanity check
 
         x_mid = SCINet(output_len= output_len[i],
