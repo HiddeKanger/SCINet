@@ -2,6 +2,10 @@ from calendar import c
 import datetime
 import numpy as np
 import pandas as pd
+
+import sys
+sys.path.insert(0, "utils/")
+
 from event import MarketEvent
 
 class HistoricCSVDataHandler:

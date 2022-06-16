@@ -6,10 +6,8 @@ from event import SignalEvent
 
 from preprocess_data import match_data
 
-import sys
 
-sys.path.insert(0, "base/")
-from SCINet import scinet_builder
+from base.SCINet import scinet_builder
 
 def construct_model_architecture(   input_dim,
                                     X_LEN = 240,
@@ -78,7 +76,7 @@ def preprocess_sample(data, X_LEN, data_format):
 
 
 class SCINET_Strategy:
-    def __init__(self, strategyID, n_features, threshold = 0) -> None:
+    def __init__(self, strategyID, n_features, threshold = 0, model_weights = None) -> None:
         """
         Initialize strategy.
         Parameters:
@@ -94,8 +92,7 @@ class SCINET_Strategy:
         self.n_blocks = 2
 
         self.threshold = threshold
-
-        self.model_weights = None
+        self.model_weights = model_weights
 
         self.n_features = n_features
 
