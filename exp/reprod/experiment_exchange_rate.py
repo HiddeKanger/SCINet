@@ -27,7 +27,7 @@ train_frac = 0.6
 val_frac = 0.2
 test_frac = 0.2
 
-X_LEN = 168
+X_LEN = 144 #168
 Y_LEN = 12
 
 OVERLAPPING = True
