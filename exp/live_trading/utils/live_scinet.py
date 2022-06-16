@@ -6,10 +6,7 @@ from time import sleep
 
 import tensorflow as tf
 
-import sys
-
-sys.path.insert(0, "base/")
-from SCINet import SCINet
+from base.SCINet import SCINet
 
 from collections import deque
 

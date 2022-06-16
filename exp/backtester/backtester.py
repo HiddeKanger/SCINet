@@ -1,12 +1,12 @@
 from datetime import datetime
 import matplotlib.pyplot as plt
 
-from data_handler import HistoricCSVDataHandler
-from portfolio import Portfolio
-from sim_execution_engine import ExecutionEngine, SimulatedExecutionEngine 
-from strategy import Strategy
+from utils.data_handler import HistoricCSVDataHandler
+from utils.portfolio import Portfolio
+from utils.sim_execution_engine import ExecutionEngine, SimulatedExecutionEngine 
+from utils.strategy import Strategy
 
-from scinet_strategy import SCINET_Strategy
+from strategies.scinet_strategy import SCINET_Strategy
 
 from tqdm import tqdm
 import numpy as np
