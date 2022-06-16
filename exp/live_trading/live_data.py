@@ -4,11 +4,21 @@ import matplotlib.animation as animation
 
 from threading import Thread
 
-from websocket_manager import WebsocketManager
+import os
+import sys
 
-from data_prepper import SCINET_data_prepper
+cwd = os.getcwd()
+print(cwd)
 
-from live_scinet import LiveSCINET
+sys.path.insert(0, cwd) #add base to path for relative imports
+
+sys.path.insert(0, "data/")
+
+from utils.websocket_manager import WebsocketManager
+
+from utils.data_prepper import SCINET_data_prepper
+
+from utils.live_scinet import LiveSCINET
 
 def live_plot(ws_manager, data_prepper, live_model):
     fig = plt.figure(figsize=(8, 8))
@@ -101,36 +111,43 @@ def update(t, axes, ws_manager, data_prepper, live_model):
         plt.tight_layout()
 
 if __name__ == "__main__":
-    URL = "wss://ftx.com/ws/"
+    URL = "wss://ftx.com/ws/" #websocket endpoint of broker
 
-    max_queue_len = 1000
+    max_queue_len = 1000 #only display the latest 1000 points for speed
 
 
-    markets = ["SOL-PERP"]
+    markets = ["SOL-PERP"] #market to trade on
 
-    X_LEN = 168
-    Y_LEN = 20
-    
+    X_LEN = 168 #input sample length
+    Y_LEN = [20, 20] #output sample length
+
+    #websocket handler
     ws_manager = WebsocketManager(  URL = URL,
                                     markets = markets,
-                                    max_len = max_queue_len)
+                                    max_len = max_queue_len
+                                )
 
-    update_period = 1 #second
+    update_period = 1 #second, take data sample every second
+    #prepare data in samples for SCINet
     data_prepper = SCINET_data_prepper( ws_manager = ws_manager,
                                         X_LEN = X_LEN,
                                         Y_LEN = Y_LEN,
-                                        update_period = update_period)
+                                        update_period = update_period
+                                    ) 
 
-    model_weights = "model_weights/BTCUSD_1652131187"
-    begin_cash = 1000
+    model_weights = "model_weights/BTCUSD_1652131187" #trained model
+    begin_cash = 1000 #beginning equity
+
+    #live scinet model
     live_model = LiveSCINET(prepper = data_prepper,
                             n_features = int(4 * len(markets)),
+                            output_dim =  [int(4 * len(markets))] * 2,
                             X_LEN = X_LEN,
                             Y_LEN = Y_LEN,
                             threshold = 0.25,
-                            model_weights = model_weights,
+                            model_weights = None, # WARNING # TODO
                             begin_cash = begin_cash,
-                            )
+                        )
 
     ws_thread = Thread(target = ws_manager.connect)
     prepper_thread = Thread(target = data_prepper.run)
