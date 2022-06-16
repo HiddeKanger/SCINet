@@ -46,8 +46,8 @@ if RANDOM_SEED != None:
 
 pairs = ["HUFL", "HULL", "MUFL", "MULL", "LUFL", "LULL", "OT"]
 
-#df = pd.read_csv(os.path.realpath(__file__) + f"/../data/Data_preprocessed/ETTm1.csv").dropna()
-df=pd.read_csv(f"/Users/lindsayspoor/Library/Mobile Documents/com~apple~CloudDocs/Documents/Studiedocumenten/2021-2022/ADL/SCINet_repo/exp/reprod/data/Data_preprocessed/ETTm1.csv").dropna()
+df = pd.read_csv(os.path.realpath(__file__) + f"/../data/Data_preprocessed/ETTm1.csv").dropna()
+#df=pd.read_csv(f"/Users/lindsayspoor/Library/Mobile Documents/com~apple~CloudDocs/Documents/Studiedocumenten/2021-2022/ADL/SCINet_repo/exp/reprod/data/Data_preprocessed/ETTm1.csv").dropna()
 df = df.swapaxes("index", "columns")
 
 data = {}

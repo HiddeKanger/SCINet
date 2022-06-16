@@ -22,7 +22,7 @@ sys.path.insert(1, WORKDIR_PATH)
 #data_format = ["timestamp","open","high","low","close","volume",]
 data_format = ["price"]
                     
-fraction_used = 0.002
+fraction_used = 1
 train_frac = 0.6
 val_frac = 0.2
 test_frac = 0.2
@@ -55,8 +55,8 @@ pairs = ["exchange_rate_stock1",
         "exchange_rate_stock7",
         "exchange_rate_stock8"]
 
-#df = pd.read_csv(os.path.realpath(__file__) + f"/../data/Data_preprocessed/exchange_rate.csv").dropna()
-df=pd.read_csv(f"/Users/lindsayspoor/Library/Mobile Documents/com~apple~CloudDocs/Documents/Studiedocumenten/2021-2022/ADL/SCINet_repo/exp/reprod/data/Data_preprocessed/exchange_rate.csv").dropna()
+df = pd.read_csv(os.path.realpath(__file__) + f"/../data/Data_preprocessed/exchange_rate.csv").dropna()
+#df = pd.read_csv(f"/Users/lindsayspoor/Library/Mobile Documents/com~apple~CloudDocs/Documents/Studiedocumenten/2021-2022/ADL/SCINet_repo/exp/reprod/data/Data_preprocessed/exchange_rate.csv").dropna()
 df = df.swapaxes("index", "columns")
 
 data = {}
@@ -110,20 +110,19 @@ model, history, X_train , y_train, X_val, y_val, X_test, y_test = train_scinet( 
 
 train_loss = history.history['loss']
 val_loss = history.history['val_loss']
-target = 0.229 #value of MAE loss in paper
 
 X = np.arange(len(train_loss))
 
 plt.plot(X, train_loss, label='Training set')
 plt.plot(X, val_loss, label="Validation set")
-plt.axhline(y=target, color='r', linestyle='--', label="Paper's result")
 plt.xlabel('Epochs', fontsize=15)
 plt.ylabel('Mean absolute error', fontsize=15)
 plt.xlim(xmin=0)
 plt.ylim(ymin=0)
-plt.title('ETTm1', fontsize=15)
+plt.title('exchange rate', fontsize=15)
 plt.legend()
-plt.savefig(f"/Users/lindsayspoor/Library/Mobile Documents/com~apple~CloudDocs/Documents/Studiedocumenten/2021-2022/ADL/SCINet_repo/exp/reprod/results/loss_exchange_rate_{Y_LEN}.pdf")
+#plt.savefig(f"/Users/lindsayspoor/Library/Mobile Documents/com~apple~CloudDocs/Documents/Studiedocumenten/2021-2022/ADL/SCINet_repo/exp/reprod/results/loss_exchange_rate_{Y_LEN}.pdf")
+plt.savefig(f"loss_exchange_rate_{Y_LEN}.pdf")
 plt.show()
 
 output = model(X_test)
@@ -140,12 +139,13 @@ for t in range(X_time_blocks):
 
 predicted_prices = np.array([])
 for t in range(Y_time_blocks):
-    predicted_prices = np.append(predicted_prices, np.array(output[0][t*Y_LEN])[:,stock])
+    predicted_prices = np.append(predicted_prices, np.array(output[t*Y_LEN])[:,stock])
 
 X_times = np.arange(len(actual_prices))
-Y_times = np.arange(len(predicted_prices))
+Y_times = np.arange(len(predicted_prices)) 
 plt.plot(X_times, actual_prices, label='actual price')
 plt.plot(Y_times, predicted_prices, label='predicted price')
 plt.legend()
-plt.savefig(f"/Users/lindsayspoor/Library/Mobile Documents/com~apple~CloudDocs/Documents/Studiedocumenten/2021-2022/ADL/SCINet_repo/exp/reprod/results/predictions_exchange_rate_{Y_LEN}.pdf")
+#plt.savefig(f"/Users/lindsayspoor/Library/Mobile Documents/com~apple~CloudDocs/Documents/Studiedocumenten/2021-2022/ADL/SCINet_repo/exp/reprod/results/predictions_exchange_rate_{Y_LEN}.pdf")
+plt.savefig(f"predictions_exchange_rate_{Y_LEN}.pdf")
 plt.show()
