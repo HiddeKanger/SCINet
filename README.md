@@ -34,6 +34,8 @@ The figure below shows the different individual components that make up the back
 The live trading system works by subscribing to a brokers (FTX) websocket and processing all changes in the orderbook. This is filtered for the best bid and best ask in order to calculate the mid-price as ``the price''. No slippage or fees are taken into account as the small order assumption holds here (our market orders will have no impact on the price). This price fluctuations are accumulated for a certain period which then forms one data point for the SCINet model (open, high, low, close). These datapoints are accumulated to form a sequence that is the input to the SCINet model. Then, similar to the backtesting system. 
 
 As we are dealing with a highly asynchronous system the different components described above are divided in three separate threads: websocket thread, data preparation thread, scinet model strategy thread. This way, the individual processes run in parallel allowing each of the processes to not be held back by the others.
+
+The dlive demo shows three plots below each other: the best bid and ask (and halfway price) as retrieved from the websocket, the preprocessed data sample + prediction (in red below) and the live total equity from top to bottom respectively. 
 ![live_trading](exp/live_trading/dashboard.jpg "Live Trading System")
 
 
