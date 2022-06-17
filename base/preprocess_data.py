@@ -103,7 +103,7 @@ def preprocess( data: dict,
 
     if STANDARDIZE:
         X_train, y_train, X_val, y_val, X_test, y_test = \
-            standardize(standardization_settings, [[X_train,y_train],[X_val,y_val],[X_test,y_test]], X_LEN, Y_LEN)
+            standardize(standardization_settings, [[X_train,y_train],[X_val,y_val],[X_test,y_test]], X_LEN, Y_LEN, [full_dataset.mean(),full_dataset.std()])
 
 
     return {"X_train": X_train,
@@ -141,7 +141,7 @@ def create_samples(data: pd.DataFrame, X_LEN: int, Y_LEN: int, OVERLAPPING: bool
 
     return samples
 
-def standardize(st_settings, data, X_len, y_len):
+def standardize(st_settings, data, X_len, y_len, full_stats):
 
 
     if st_settings['per_sample']:
@@ -162,19 +162,14 @@ def standardize(st_settings, data, X_len, y_len):
             dat[1] = np.delete(dat[1], results[0], axis=0)
 
     elif st_settings['leaky']:
-        
-        n_stocks = data[0][0].shape[2]
 
-        for i in range(n_stocks):
-            mean = st_settings['total mean'][i]
-            std = st_settings['total std'][i]
+        mean = np.array(full_stats[0])
+        std = np.array(full_stats[1])
 
-            data[0][0][:,:,i] = (data[0][0][:,:,i] - mean) / std
-            data[0][1][:,:,i] = (data[0][1][:,:,i] - mean) / std
-            data[1][0][:,:,i] = (data[1][0][:,:,i] - mean) / std
-            data[1][1][:,:,i] = (data[1][1][:,:,i] - mean) / std
-            data[2][0][:,:,i] = (data[2][0][:,:,i] - mean) / std
-            data[2][1][:,:,i] = (data[2][1][:,:,i] - mean) / std
+        for dat in data:
+            for da in dat:
+
+                da = (da-mean)/std
 
     else:
 
