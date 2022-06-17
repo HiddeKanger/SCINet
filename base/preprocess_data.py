@@ -171,25 +171,27 @@ def standardize(st_settings, data, X_len, y_len, full_stats):
 
                 da = (da-mean)/std
 
-    else:
+        else:
 
-        for dat in data:
+            for i,dat in enumerate(data):
 
-            if st_settings['mode'] == 'log':
+                if st_settings['mode'] == 'log':
 
-                dat[0] = np.sign(dat[0]) * np.log10(np.abs(dat[0])+1)
-                dat[1] = np.sign(dat[1]) * np.log10(np.abs(dat[1])+1)
+                    dat[0] = np.sign(dat[0]) * np.log10(np.abs(dat[0])+1)
+                    dat[1] = np.sign(dat[1]) * np.log10(np.abs(dat[1])+1)
 
-            elif st_settings['mode'] == 'sqrt':
+                elif st_settings['mode'] == 'sqrt':
 
-                root_num = st_settings['sqrt_val']
-                dat[0] = np.sign(dat[0]) * np.power(np.abs(dat[0]),1/root_num)
-                dat[1] = np.sign(dat[1]) * np.power(np.abs(dat[1]),1/root_num)
+                    root_num = st_settings['sqrt_val']
+                    dat[0] = np.sign(dat[0]) * np.power(np.abs(dat[0]),1/root_num)
+                    dat[1] = np.sign(dat[1]) * np.power(np.abs(dat[1]),1/root_num)
 
-            mean = np.mean(data[0], axis = (0,1))
-            std = np.std(data[0] , axis = (0,1))
-            dat[0] = (dat[0]-mean) / std
-            dat[1] = (dat[1]-mean) / std
+                if i == 0:
+                    mean = np.mean(dat[0], axis = (0,1))
+                    std = np.std(dat[0] , axis = (0,1))
+
+                dat[0] = (dat[0]-mean) / std
+                dat[1] = (dat[1]-mean) / std
 
     return data[0][0], data[0][1], data[1][0], data[1][1], data[2][0], data[2][1]
 
