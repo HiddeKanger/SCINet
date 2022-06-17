@@ -22,7 +22,20 @@ def construct_model_architecture(   input_dim,
                                     dropout = 0.5,
                                     loss_weights = [0.2, 0.2, 0.6],
                                     probabilistic = False):
-                                    
+    print(f"input_len: {X_LEN}")         
+    print(f"Output len: {Y_LEN}")
+
+    print(f"input_dim: {input_dim}")
+    print(f"output_dim: {output_dim}")
+
+    print(f"hid_size: {hid_size}")
+    print(f"num_levels: {num_levels}")
+
+    print(f"kernel: {kernel}")
+    print(f"dropout: {dropout}")
+   
+    print(f"loss_weights: {loss_weights}")
+    print(f"probabilistic: {probabilistic}")
     
     model = scinet_builder(  output_len = Y_LEN,
                              output_dim = output_dim,
@@ -232,7 +245,7 @@ class LiveSCINET:
                                             "amount": self.cash/curr_price}
 
                         self.planned_trade = {  "type": "EXIT_LONG",
-                                                "exit": times[-1] + self.Y_LEN
+                                                "exit": times[-1] + self.Y_LEN[-1]
                                             }
 
                         self.long_count += 1
@@ -248,7 +261,7 @@ class LiveSCINET:
                                             "amount": -self.cash/curr_price}
 
                         self.planned_trade = {  "type": "EXIT_SHORT",
-                                                "exit": times[-1] + self.Y_LEN
+                                                "exit": times[-1] + self.Y_LEN[-1]
                                             }
 
                         self.short_count += 1
