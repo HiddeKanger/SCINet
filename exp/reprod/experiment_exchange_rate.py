@@ -110,13 +110,13 @@ model, history, X_train , y_train, X_val, y_val, X_test, y_test = train_scinet( 
 
 train_loss = history.history['loss']
 val_loss = history.history['val_loss']
-target = 0.229 #value of MAE loss in paper
+#target = 0.229 #value of MAE loss in paper
 
 X = np.arange(len(train_loss))
 
 plt.plot(X, train_loss, label='Training set')
 plt.plot(X, val_loss, label="Validation set")
-plt.axhline(y=target, color='r', linestyle='--', label="Paper's result")
+#plt.axhline(y=target, color='r', linestyle='--', label="Paper's result")
 plt.xlabel('Epochs', fontsize=15)
 plt.ylabel('Mean absolute error', fontsize=15)
 plt.xlim(xmin=0)
