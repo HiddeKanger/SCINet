@@ -11,7 +11,7 @@ import math
 WORKDIR_PATH = os.path.dirname(os.path.realpath(__file__)) + "/../../"
 sys.path.insert(1, WORKDIR_PATH)
 
-from base.preprocess_data import preprocess
+from preprocess_data import preprocess
 from base.train_scinet import train_scinet
 
 WORKDIR_PATH = os.path.dirname(os.path.realpath(__file__))
