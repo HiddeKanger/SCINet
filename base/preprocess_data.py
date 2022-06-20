@@ -178,7 +178,7 @@ def standardize(st_settings, data, X_len, y_len):
 
     else:
 
-        for dat in data:
+        for i,dat in enumerate(data):
 
             if st_settings['mode'] == 'log':
 
@@ -191,8 +191,10 @@ def standardize(st_settings, data, X_len, y_len):
                 dat[0] = np.sign(dat[0]) * np.power(np.abs(dat[0]),1/root_num)
                 dat[1] = np.sign(dat[1]) * np.power(np.abs(dat[1]),1/root_num)
 
-            mean = np.mean(dat[0][0], axis = (0,1))
-            std = np.std(dat[0][0] , axis = (0,1))
+            if i == 0:
+              mean = np.mean(dat[0], axis = (0,1))
+              std = np.std(dat[0] , axis = (0,1))
+
             dat[0] = (dat[0]-mean) / std
             dat[1] = (dat[1]-mean) / std
 
