@@ -2,6 +2,8 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 
+from sklearn.metrics import mean_absolute_error as mae
+
 
 def plot_histograms(n_columns, data):
 
@@ -72,13 +74,13 @@ def plot_per_timestep_mae(truths,predictions, constant_predictions, Y_len, label
 
     colors = ['blue','red','green','maroon']
 
-    for i in range(y_test.shape[1]):
+    for i in range(truths.shape[1]):
 
         time_wise_mae_constant.append(mae(truths[:,i,0],constant_predictions[:,i]))
 
         for j,prediction in enumerate(predictions):
 
-            time_wise_mae[j].append(mae(y_test_proc[:,i,0],prediction[:,i,0]))
+            time_wise_mae[j].append(mae(truths[:,i,0],prediction[:,i,0]))
         
     for i in range (len(predictions)):
         plt.scatter(time_from_last_x, time_wise_mae[i], color = colors[i],\
