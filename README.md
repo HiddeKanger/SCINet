@@ -14,7 +14,7 @@ The repository is divided into two main folders: `base/` and `exp/`:
 
 
 ## Results Reproduction
-
+Here some of the results of the original SCINet paper are being reproduced. The original paper contained a lot of datasets with multiple hyperparameter combinations. 4 of them are being reproduced, 3 of which are of the different Electrical Transformer Temperature datasets (ETTh1, ETTh2, ETTm1). And the exchange rate dataset. For each dataset the best performing hyperparameter combination is chosen.
 
 ## Hyperparameter optimization
 
