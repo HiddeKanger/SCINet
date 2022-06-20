@@ -13,4 +13,4 @@ Importing "scinet_builder" allows a lot of flexibility to construct all types of
 
 For instance, if we want to use volume and close price for 3 different stocks but we are only interested in one stock, we can structure the model such that the first stack outputs just the close price of the 3 stocks and second stack just outputs the close price of the stock we are interested in. In order to do so we call the "scinet_builder" and specify the output dimension ("output_dim") of each stack as [[3], [1]] and then select the index of the columns ("selected_columns") in the input that we want to use to calculate the loss in each stack as [[x, y, z], [z]]. 
 
-The relative importance of the loss can be balanced through the "loss_weight" argumen
+The relative importance of the loss can be balanced through the "loss_weight" argument.
