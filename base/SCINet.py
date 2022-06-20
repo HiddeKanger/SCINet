@@ -68,26 +68,6 @@ class InteractorLayer(tf.keras.layers.Layer):
                 strides = 1,
                 activation= "tanh")
 
-        #self.layers = [
-        #    ReplicationPadding1D(padding=(pad_l, pad_r)),
-        #    #Channels is abstracted in tf. Given when compiling the model
-        #    tf.keras.layers.Conv1D(
-        #        filters = int(in_planes * hidden_size), # In planes must then be the number of dimensions.
-        #        kernel_size = kernel ,
-        #        dilation_rate= 1 , # Fixed by them
-        #        strides= 1, # Fixed by them
-        #    ),
-        #    tf.keras.layers.LeakyReLU(alpha=0.01),
-
-        #    tf.keras.layers.Dropout(rate = dropout),
-
-        #    tf.keras.layers.Conv1D(
-        #        filters= in_planes,
-        #        kernel_size= 3, 
-        #        strides = 1,
-        #        activation= "tanh")
-        #]
-
     
     def call(self, x, training = True):
         Z = x
@@ -256,14 +236,7 @@ class SCINet(tf.keras.layers.Layer):
                                                 strides = kernel_size,
                                                 use_bias = False)
         if probabilistic:
-
-            kl_divergence_function = (lambda q, p, _: tfd.kl_divergence(q, p) /  # pylint: disable=g-long-lambda
-                            tf.cast(num_examples, dtype=tf.float32)) # This is just a transformation to take into account the data length
-
-            self.projection1 = tfp.layers.Convolution1DFlipout(self.output_len,
-                                                kernel_size = kernel_size,
-                                                strides = kernel_size,
-                                                kernel_divergence_fn=kl_divergence_function)
+            pass # TODO
 
     def call(self, x, training = True):
         assert self.input_len % (np.power(2, self.num_levels)) == 0
@@ -337,6 +310,7 @@ def scinet_builder( output_len: list,
     print('Building model...')
     assert len(output_dim) == len(output_len), "output_dim list does not equal length output_len"
     assert input_len % 2**num_levels == 0, f"input_len (X_LEN) does not match depth {input_len} % 2**{num_levels} != 0"
+    assert (input_len / 2**num_levels) % 2 , f"input_len (X_LEN) does not match depth. {input_len} / 2**{num_levels} must be even!"
 
     if selected_columns is not None:
         assert all([output_dim[i] == len(selected_columns[i])
