@@ -100,7 +100,7 @@ class Sci_block(tf.keras.layers.Layer):
         if self.splitting:
             (x_even, x_odd) = splitting_layer(x)
         else:
-            (x_even, x_odd) = x # How this is gonna work? if it is splitted already or what?
+            (x_even, x_odd) = x 
         
         if self.modified: 
 
@@ -310,7 +310,7 @@ def scinet_builder( output_len: list,
     print('Building model...')
     assert len(output_dim) == len(output_len), "output_dim list does not equal length output_len"
     assert input_len % 2**num_levels == 0, f"input_len (X_LEN) does not match depth {input_len} % 2**{num_levels} != 0"
-    assert (input_len / 2**num_levels) % 2 , f"input_len (X_LEN) does not match depth. {input_len} / 2**{num_levels} must be even!"
+    assert (input_len / 2**num_levels) % 2 == 0 , f"input_len (X_LEN) does not match depth. {input_len} / 2**{num_levels} must be even!"
 
     if selected_columns is not None:
         assert all([output_dim[i] == len(selected_columns[i])
