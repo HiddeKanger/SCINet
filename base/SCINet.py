@@ -1,5 +1,8 @@
 import tensorflow as tf
 import numpy as np
+import tensorflow_probability as tfp
+tfd = tfp.distributions
+tfpl = tfp.layers
 
 # Splitting layer:
 splitting_layer = tf.keras.layers.Lambda(lambda x: (x[:, ::2, :],
@@ -189,8 +192,7 @@ class SCINet(tf.keras.layers.Layer):
     Main model class
     '''
     def __init__(self, output_len, input_len, input_dim, output_dim, hid_size = 1,
-                num_levels = 4, kernel = 5, dropout = 0.5, num_examples = None,
-                probabilistic = False, **kwargs):
+                num_levels = 4, kernel = 5, dropout = 0.5, **kwargs):
 
         super().__init__(**kwargs)
 
@@ -221,8 +223,6 @@ class SCINet(tf.keras.layers.Layer):
                                                 kernel_size = kernel_size,
                                                 strides = kernel_size,
                                                 use_bias = False)
-        if probabilistic:
-            pass # TODO
 
     def call(self, x, training = True):
         assert self.input_len % (np.power(2, self.num_levels)) == 0
@@ -298,9 +298,11 @@ def scinet_builder( output_len: list,
         Learning rate for ADAM.
 
     Probabilistic: Boolean
-        TODO
-    Num_examples: Int
-        Needed for probabilistic model (weight KL distance).
+        If the model should be probabilistic. (affects only the last layer)
+            It parameterizes a Bernoulli distribution w.r.t the last time-step in
+            the output is above or below the last seen value.
+            It will therefore, return the probability of the stock/s going up or down.
+   
     '''
     # Num examples needed in the case of using probabilistic layer.
     print('Building model...')
@@ -349,6 +351,33 @@ def scinet_builder( output_len: list,
         X = tf.keras.layers.Cropping1D((output_len[i], 0))(new_input)
         # Removing "old" prices first
     
+    if probabilistic:
+        # Linearly transform prediction into Real Line parameter to Bernouilli.
+        b_param = tf.keras.layers.Dense(output_dim[-1])(outputs[-1]) 
+        # Take that through sigmoid function and parameterize Bernouilli.
+        my_distribution = tfpl.DistributionLambda(lambda t : tfd.Bernoulli(logits = t))(b_param) # t = 1 x numStocks
+        # Replace last output
+        outputs.insert(-1, my_distribution)
+
+        # Now, compiling model stuff:
+        model = tf.keras.Model(inputs = inputs, outputs = outputs)
+        
+        # Before the last losses:
+        losses = {f'Block_{i}':"mae" for i in range(len(output_dim) - 1)}
+
+        # Loss for the Bernouilli. This is like n logistic regressions in parallell.
+        def nll(y_true, y_pred):
+            return -y_pred.log_prob(y_true)
+
+        custom_loss_Bernouilli = {f'Block_{len(output_dim)}': nll}
+
+
+        losses.update(custom_loss_Bernouilli)
+
+        model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate= learning_rate),
+         loss = losses, loss_weights = loss_weights)
+
+
     model = tf.keras.Model(inputs = inputs, outputs = outputs)
     model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate= learning_rate),
          loss = {f'Block_{i}':"mae" for i in range(len(output_dim))},
@@ -356,6 +385,9 @@ def scinet_builder( output_len: list,
 
 
     return model
+
+def probabilistic_input_handler():
+    pass # TODO
 
 if __name__ == "__main__":
     ## EXAMPLE TO RUN
