@@ -32,3 +32,64 @@ def barplot_correlations(n_columns, mean_correlations):
     ax.set_xlabel('Feature number')
 
     fig.suptitle('Correlation between first column and consequent columns')
+
+def plot_model_predictions(X_test_proc,y_test_proc,predictions,samples,\
+    N_rows,N_columns,X_len,Y_len, columns_string):
+
+    skip_x = 50
+    time_x = np.arange(skip_x,X_len)
+    time_y = np.arange(X_len,X_len+Y_len)
+
+    colors = ['blue','red','green','maroon']
+
+    fig, axes = plt.subplots(N_rows, N_columns, figsize = (20,8), sharex= True)
+
+    for i, sample in enumerate(samples):
+
+        row = i//N_columns
+        col = i%N_columns
+
+        axes[row, col].plot(time_x, X_test_proc[sample,skip_x:,0], color = 'black', label = 'SCINet input')
+        axes[row, col].plot(time_y, y_test_proc[sample,:,0], color = 'black', ls = '--', label = 'Real outputs')
+
+        for j, prediction in enumerate(predictions):
+
+            axes[row, col].plot(time_y, prediction[sample,:], color = colors[j], ls = '--', \
+                        label = 'used cols: [' + columns_string[j] + ']')
+
+        axes[0,0].legend(ncol = 6, loc =0, bbox_to_anchor = (4.7,1.2,0,0), fontsize = 14)
+        axes[row,col].grid()
+        axes[N_rows-1,col].set_xlabel('time in (a.u.)')
+        axes[row,0].set_ylabel('normalised flux in (a.u.)')
+
+    fig.suptitle('Example predictions made by trained models', fontsize = 22)
+
+def plot_per_timestep_mae(truths,predictions, constant_predictions, Y_len, labels):
+
+    time_from_last_x = np.arange(1,Y_len+1)
+    time_wise_mae_constant = []
+    time_wise_mae = [ [] for _ in range(len(predictions)) ]
+
+    colors = ['blue','red','green','maroon']
+
+    for i in range(y_test.shape[1]):
+
+        time_wise_mae_constant.append(mae(truths[:,i,0],constant_predictions[:,i]))
+
+        for j,prediction in enumerate(predictions):
+
+            time_wise_mae[j].append(mae(y_test_proc[:,i,0],prediction[:,i,0]))
+        
+    for i in range (len(predictions)):
+        plt.scatter(time_from_last_x, time_wise_mae[i], color = colors[i],\
+             marker='x', label = 'cols [{}]'.format(labels[i]))
+
+    plt.scatter(time_from_last_x, time_wise_mae_constant, color = 'black', marker='x', label = 'Constant')
+    plt.xlabel('Time from last seen value by SCINet')
+    plt.ylabel('Mean Absolute Error')
+    plt.grid()
+    plt.legend()
+    plt.title('Mean absolute error from last seen value')
+
+
+plt.show()
