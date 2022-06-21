@@ -17,8 +17,7 @@ def construct_model_architecture(   input_dim,
                                     num_levels = 3,
                                     kernel = 5,
                                     dropout = 0.5,
-                                    loss_weights = [0.2, 0.2, 0.6],
-                                    probabilistic = False):
+                                    loss_weights = [0.2, 0.2, 0.6]):
                                     
 
     model = scinet_builder(  output_len = Y_LEN,
@@ -30,7 +29,6 @@ def construct_model_architecture(   input_dim,
                              kernel = kernel,
                              dropout = dropout,
                              loss_weights = loss_weights, 
-                             probabilistic = probabilistic,
                              selected_columns = None)
     
     return model

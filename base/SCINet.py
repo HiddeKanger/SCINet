@@ -246,8 +246,7 @@ def scinet_builder( output_len: list,
                     kernel = 5,
                     dropout = 0.5,
                     learning_rate = 0.01,
-                    probabilistic = False,
-                    num_examples = None
+                    probabilistic = False # Not used
                 ):
 
     '''
@@ -296,12 +295,6 @@ def scinet_builder( output_len: list,
 
     learning_rate: float
         Learning rate for ADAM.
-
-    Probabilistic: Boolean
-        If the model should be probabilistic. (affects only the last layer)
-            It parameterizes a Bernoulli distribution w.r.t the last time-step in
-            the output is above or below the last seen value.
-            It will therefore, return the probability of the stock/s going up or down.
    
     '''
     # Num examples needed in the case of using probabilistic layer.
@@ -351,32 +344,6 @@ def scinet_builder( output_len: list,
         X = tf.keras.layers.Cropping1D((output_len[i], 0))(new_input)
         # Removing "old" prices first
     
-    if probabilistic:
-        # Linearly transform prediction into Real Line parameter to Bernouilli.
-        b_param = tf.keras.layers.Dense(output_dim[-1])(outputs[-1]) 
-        # Take that through sigmoid function and parameterize Bernouilli.
-        my_distribution = tfpl.DistributionLambda(lambda t : tfd.Bernoulli(logits = t))(b_param) # t = 1 x numStocks
-        # Replace last output
-        outputs.insert(-1, my_distribution)
-
-        # Now, compiling model stuff:
-        model = tf.keras.Model(inputs = inputs, outputs = outputs)
-        
-        # Before the last losses:
-        losses = {f'Block_{i}':"mae" for i in range(len(output_dim) - 1)}
-
-        # Loss for the Bernouilli. This is like n logistic regressions in parallell.
-        def nll(y_true, y_pred):
-            return -y_pred.log_prob(y_true)
-
-        custom_loss_Bernouilli = {f'Block_{len(output_dim)}': nll}
-
-
-        losses.update(custom_loss_Bernouilli)
-
-        model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate= learning_rate),
-         loss = losses, loss_weights = loss_weights)
-
 
     model = tf.keras.Model(inputs = inputs, outputs = outputs)
     model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate= learning_rate),
@@ -386,16 +353,13 @@ def scinet_builder( output_len: list,
 
     return model
 
-def probabilistic_input_handler():
-    pass # TODO
 
 if __name__ == "__main__":
     ## EXAMPLE TO RUN
     X = np.random.rand(1, 800, 5)
 
     my_layer = scinet_builder(output_len= [20]*5, input_len= 800, input_dim= 5,
-    output_dim= [5]*5, num_levels = 2, loss_weights= [0.2]*5, probabilistic= True,
-     num_examples= X.shape[0], selected_columns=None)
+    output_dim= [5]*5, num_levels = 2, loss_weights= [0.2]*5, selected_columns=None)
     print('Model compiled')
     print(my_layer.summary())
     print(my_layer.losses)
