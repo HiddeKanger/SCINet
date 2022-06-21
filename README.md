@@ -1,8 +1,14 @@
 # SCINet
 TensorFlow SCINet implementation with extensions for Advances in Deep Learning Leiden University 2022
 
-## -------------------------------------------------------------------------------
+## Installation:
+All code is Python 3.x native and depends on the packages listed in the `requirements.txt` file.
 
+Setup environment:
+`pip install requirements.txt`
+
+
+## Usage
 This repository contains a TensorFlow implementation of the SCINet model as described in https://arxiv.org/abs/2106.09305, adapted from https://github.com/cure-lab/SCINet. 
 
 The repository is divided into two main folders: `base/` and `exp/`:
