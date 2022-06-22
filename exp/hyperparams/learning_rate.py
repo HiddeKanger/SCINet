@@ -8,7 +8,7 @@ import sys
 WORKDIR_PATH = os.path.dirname(os.path.realpath(__file__)) + "/../../"
 sys.path.insert(1, WORKDIR_PATH)
 
-from base.preprocess_data import preprocess
+from preprocess_data import preprocess
 from base.train_scinet import train_scinet
 
 WORKDIR_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -17,7 +17,8 @@ sys.path.insert(1, WORKDIR_PATH)
 #============= Preprocessing ==============
 
 #data_format = ["timestamp","open","high","low","close","volume",]
-data_format = ["price"]
+#data_format = ["price"]
+data_format=["open","high","low","close","Volume BTC","Volume USDT","tradecount"]
                     
 fraction_used = 1
 train_frac = 0.6
@@ -40,7 +41,7 @@ standardization_settings = {'per_sample': True,
 pairs = ["HUFL", "HULL", "MUFL", "MULL", "LUFL", "LULL", "OT"]
 
 #df = pd.read_csv(os.path.realpath(__file__) + f"/../data/Data_preprocessed/ETTh1.csv").dropna()
-df = pd.read_csv(f"/Users/lindsayspoor/Library/Mobile Documents/com~apple~CloudDocs/Documents/Studiedocumenten/2021-2022/ADL/SCINet_repo/exp/reprod/data/Data_preprocessed/ETTh1.csv").dropna()
+df = pd.read_csv(f"~/Library/Mobile Documents/com~apple~CloudDocs/Documents/Studiedocumenten/2021-2022/ADL/SCINet_repo/exp/hyperparams/data/Binance_BTCUSDT_minute.csv").dropna()
 df = df.swapaxes("index", "columns")
 
 data = {}
@@ -115,5 +116,5 @@ plt.xlim(xmin=0)
 plt.ylim(ymin=0)
 plt.title('Learning rate comparison', fontsize=15)
 plt.legend()
-plt.savefig(f"Optimization_LearningRate.pdf")
+plt.savefig(f"/Users/lindsayspoor/Library/Mobile Documents/com~apple~CloudDocs/Documents/Studiedocumenten/2021-2022/ADL/SCINet_repo/exp/hyperparams/results/Optimization_LearningRate.pdf")
 plt.show()
