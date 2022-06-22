@@ -87,7 +87,7 @@ def plot_prediction_examples(n_samples, x_samples,y_predictions, y_true):
 
     fig, axes = plt.subplots(y_true.shape[2], n_samples, figsize=(20,6))
 
-    labels = ['SCINet input', 'SCINet predictions', 'Ground truths']
+    labels = ['SCINet input', 'Ground truths','SCINet predictions']
 
     x_val_x = np.arange(x_samples.shape[1])
     x_val_y = np.arange(x_samples.shape[1],x_samples.shape[1]+y_predictions.shape[1])
