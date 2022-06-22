@@ -68,26 +68,6 @@ class InteractorLayer(tf.keras.layers.Layer):
                 strides = 1,
                 activation= "tanh")
 
-        #self.layers = [
-        #    ReplicationPadding1D(padding=(pad_l, pad_r)),
-        #    #Channels is abstracted in tf. Given when compiling the model
-        #    tf.keras.layers.Conv1D(
-        #        filters = int(in_planes * hidden_size), # In planes must then be the number of dimensions.
-        #        kernel_size = kernel ,
-        #        dilation_rate= 1 , # Fixed by them
-        #        strides= 1, # Fixed by them
-        #    ),
-        #    tf.keras.layers.LeakyReLU(alpha=0.01),
-
-        #    tf.keras.layers.Dropout(rate = dropout),
-
-        #    tf.keras.layers.Conv1D(
-        #        filters= in_planes,
-        #        kernel_size= 3, 
-        #        strides = 1,
-        #        activation= "tanh")
-        #]
-
     
     def call(self, x, training = True):
         Z = x
@@ -120,7 +100,7 @@ class Sci_block(tf.keras.layers.Layer):
         if self.splitting:
             (x_even, x_odd) = splitting_layer(x)
         else:
-            (x_even, x_odd) = x # How this is gonna work? if it is splitted already or what?
+            (x_even, x_odd) = x 
         
         if self.modified: 
 
@@ -159,7 +139,9 @@ class SCINet_Tree(tf.keras.layers.Layer):
         self.current_level = current_level
         self.workingblock = Sci_block(
             in_planes = in_planes,
-            hidden_size = hidden_size) 
+            hidden_size = hidden_size,
+            kernel= kernel,
+            dropout = dropout) 
         
         if current_level!=0: 
             self.SCINet_Tree_odd=SCINet_Tree(in_planes, kernel= kernel,
@@ -204,27 +186,10 @@ class SCINet_Tree(tf.keras.layers.Layer):
 
 class SCINet(tf.keras.layers.Layer):
     '''
-    This is the MAIN class.
-    Right now it can only handle 1 or two stacks, as in original code, however this is arbitrary and may be changed.
-    They use Conv1d for the last "dense layers". They do it taking the input temporal dimension as the input channels.
-    So the filters of this Conv1d are the new time point representation. 1 filter per each time step. Furthermore the kernel
-    is 1, so there is NOT further recombination of different dimensions, this applies the transformation per dimension.
-    To achieve this in tensorflow, however, we do need to transpose the matrix. We want a conmbination of ALL time-steps for
-    a given dimension. For instance, if we just want 1 prediction, we just need one filter.
-    With two stacks we can choose the interior representation of the first stack, "output_len" i.e. the number of filters.
-    Independly of how many we have here, the second stack (since is the last one) will just have one filter.
-    This can be adapted to more layers, as stated before, but the logic is the same.
-    The original input is added to this representation, so we have a residual network.
-    In the current implementation, if we would want to predict just 1 time-step with 1 block we 
-    would have to use 1 as "output_len".
-    WARNING:
-    -> "CONCAT_LEN" not implemented 
-    -> "RIN" not implemented
-    -> positional embedding not implemented 
+    Main model class
     '''
     def __init__(self, output_len, input_len, input_dim, output_dim, hid_size = 1,
-                num_levels = 4, kernel = 5, dropout = 0.5, num_examples = None,
-                probabilistic = False, **kwargs):
+                num_levels = 4, kernel = 5, dropout = 0.5, **kwargs):
 
         super().__init__(**kwargs)
 
@@ -255,15 +220,6 @@ class SCINet(tf.keras.layers.Layer):
                                                 kernel_size = kernel_size,
                                                 strides = kernel_size,
                                                 use_bias = False)
-        if probabilistic:
-
-            kl_divergence_function = (lambda q, p, _: tfd.kl_divergence(q, p) /  # pylint: disable=g-long-lambda
-                            tf.cast(num_examples, dtype=tf.float32)) # This is just a transformation to take into account the data length
-
-            self.projection1 = tfp.layers.Convolution1DFlipout(self.output_len,
-                                                kernel_size = kernel_size,
-                                                strides = kernel_size,
-                                                kernel_divergence_fn=kl_divergence_function)
 
     def call(self, x, training = True):
         assert self.input_len % (np.power(2, self.num_levels)) == 0
@@ -287,16 +243,18 @@ def scinet_builder( output_len: list,
                     kernel = 5,
                     dropout = 0.5,
                     learning_rate = 0.01,
-                    probabilistic = False,
-                    num_examples = None
+                    probabilistic = False # Not used
                 ):
 
     '''
-    Parameters
+    Returns a compiled SCINet model. 
+    
+    Arguments:
     ----------
     output_len: list
         Length of the output in each SCINet. If just one SCINet [n] where
         n is the lenght.
+
     input_len: int
         Length of the input of the *first* SCINet. Subsequent ones are
         determined by previous output length.
@@ -304,6 +262,7 @@ def scinet_builder( output_len: list,
     output_dim: list
         Dimensionality of the output of each SCINet. If just one SCINet [n]
         where n is the number of dimensions.
+
     input_dim: int
         Dimensionality of of the *first* SCINet. Subsequent ones are
         determined by previous output dim.
@@ -318,25 +277,28 @@ def scinet_builder( output_len: list,
     
     loss_weight: list
         Relative importance of the loss for the output of each SCINet.
+
     hid_size: int
         Number of filters, applicable to all SCINet.
+
     num_levels: int
         Number of splits, applicable to all SCINet.
+    
     kernel: int
         Kernel size, applicable to all SCINet.
+    
     dropout: float
-        Dropout rate, applicable to all SCINet
+        Dropout rate, applicable to all SCINet.
+
     learning_rate: float
         Learning rate for ADAM.
-    Probabilistic: Boolean
-        TODO
-    Num_examples: Int
-        Needed for probabilistic model (weight KL distance).
+   
     '''
     # Num examples needed in the case of using probabilistic layer.
     print('Building model...')
     assert len(output_dim) == len(output_len), "output_dim list does not equal length output_len"
     assert input_len % 2**num_levels == 0, f"input_len (X_LEN) does not match depth {input_len} % 2**{num_levels} != 0"
+    assert (input_len / 2**num_levels) % 2 == 0 , f"input_len (X_LEN) does not match depth. {input_len} / 2**{num_levels} must be even!"
 
     if selected_columns is not None:
         assert all([output_dim[i] == len(selected_columns[i])
@@ -379,6 +341,7 @@ def scinet_builder( output_len: list,
         X = tf.keras.layers.Cropping1D((output_len[i], 0))(new_input)
         # Removing "old" prices first
     
+
     model = tf.keras.Model(inputs = inputs, outputs = outputs)
     model.compile(optimizer = tf.keras.optimizers.Adam(learning_rate= learning_rate),
          loss = {f'Block_{i}':"mae" for i in range(len(output_dim))},
@@ -387,13 +350,13 @@ def scinet_builder( output_len: list,
 
     return model
 
+
 if __name__ == "__main__":
     ## EXAMPLE TO RUN
     X = np.random.rand(1, 800, 5)
 
     my_layer = scinet_builder(output_len= [20]*5, input_len= 800, input_dim= 5,
-    output_dim= [5]*5, num_levels = 2, loss_weights= [0.2]*5, probabilistic= True,
-     num_examples= X.shape[0], selected_columns=None)
+    output_dim= [5]*5, num_levels = 2, loss_weights= [0.2]*5, selected_columns=None)
     print('Model compiled')
     print(my_layer.summary())
     print(my_layer.losses)

@@ -84,11 +84,11 @@ def update(t, axes, ws_manager, data_prepper, live_model):
                     (trade_type == "EXIT_SHORT") * "red" + \
                     (trade_type == None) * "gray"
 
-            samples_axis.plot(  range(live_model.X_LEN, live_model.X_LEN + live_model.Y_LEN), 
+            samples_axis.plot(  range(live_model.X_LEN, live_model.X_LEN + live_model.Y_LEN[-1]), 
                                 live_model.prediction, 
                                 color = color
                             )
-            samples_axis.scatter(   range(live_model.X_LEN, live_model.X_LEN + live_model.Y_LEN), 
+            samples_axis.scatter(   range(live_model.X_LEN, live_model.X_LEN + live_model.Y_LEN[-1]), 
                                     live_model.prediction, 
                                     color = color,
                                     s = 5,
