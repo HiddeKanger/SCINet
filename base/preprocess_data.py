@@ -1,3 +1,4 @@
+from enum import unique
 import numpy as np
 import pandas as pd
 import numpy as np
@@ -101,8 +102,8 @@ def preprocess( data: dict,
 
 
     if STANDARDIZE:
-        X_train, y_train, X_val, y_val, X_test, y_test = \
-            standardize(standardization_settings, [[X_train,y_train],[X_val,y_val],[X_test,y_test]], X_LEN, Y_LEN, [full_dataset.mean(),full_dataset.std()])
+        X_train, y_train, X_val, y_val, X_test, y_test, mean ,std = \
+            standardize(standardization_settings, [[X_train,y_train],[X_val,y_val],[X_test,y_test]], X_LEN, Y_LEN)
 
 
     return {"X_train": X_train,
@@ -140,7 +141,7 @@ def create_samples(data: pd.DataFrame, X_LEN: int, Y_LEN: int, OVERLAPPING: bool
 
     return samples
 
-def standardize(st_settings, data, X_len, y_len, full_stats):
+def standardize(st_settings, data, X_len, y_len):
 
 
     if st_settings['per_sample']:
@@ -161,38 +162,43 @@ def standardize(st_settings, data, X_len, y_len, full_stats):
             dat[1] = np.delete(dat[1], results[0], axis=0)
 
     elif st_settings['leaky']:
+        
+        n_stocks = data[0][0].shape[2]
 
-        mean = np.array(full_stats[0])
-        std = np.array(full_stats[1])
+        for i in range(n_stocks):
+            mean = st_settings['total mean'][i]
+            std = st_settings['total std'][i]
 
-        for dat in data:
-            for da in dat:
+            data[0][0][:,:,i] = (data[0][0][:,:,i] - mean) / std
+            data[0][1][:,:,i] = (data[0][1][:,:,i] - mean) / std
+            data[1][0][:,:,i] = (data[1][0][:,:,i] - mean) / std
+            data[1][1][:,:,i] = (data[1][1][:,:,i] - mean) / std
+            data[2][0][:,:,i] = (data[2][0][:,:,i] - mean) / std
+            data[2][1][:,:,i] = (data[2][1][:,:,i] - mean) / std
 
-                da = (da-mean)/std
+    else:
 
-        else:
+        for i,dat in enumerate(data):
 
-            for i,dat in enumerate(data):
+            if st_settings['mode'] == 'log':
 
-                if st_settings['mode'] == 'log':
+                dat[0] = np.sign(dat[0]) * np.log10(np.abs(dat[0])+1)
+                dat[1] = np.sign(dat[1]) * np.log10(np.abs(dat[1])+1)
 
-                    dat[0] = np.sign(dat[0]) * np.log10(np.abs(dat[0])+1)
-                    dat[1] = np.sign(dat[1]) * np.log10(np.abs(dat[1])+1)
+            elif st_settings['mode'] == 'sqrt':
 
-                elif st_settings['mode'] == 'sqrt':
+                root_num = st_settings['sqrt_val']
+                dat[0] = np.sign(dat[0]) * np.power(np.abs(dat[0]),1/root_num)
+                dat[1] = np.sign(dat[1]) * np.power(np.abs(dat[1]),1/root_num)
 
-                    root_num = st_settings['sqrt_val']
-                    dat[0] = np.sign(dat[0]) * np.power(np.abs(dat[0]),1/root_num)
-                    dat[1] = np.sign(dat[1]) * np.power(np.abs(dat[1]),1/root_num)
+            if i == 0:
+              mean = np.mean(dat[0], axis = (0,1))
+              std = np.std(dat[0] , axis = (0,1))
 
-                if i == 0:
-                    mean = np.mean(dat[0], axis = (0,1))
-                    std = np.std(dat[0] , axis = (0,1))
+            dat[0] = (dat[0]-mean) / std
+            dat[1] = (dat[1]-mean) / std
 
-                dat[0] = (dat[0]-mean) / std
-                dat[1] = (dat[1]-mean) / std
-
-    return data[0][0], data[0][1], data[1][0], data[1][1], data[2][0], data[2][1]
+    return data[0][0], data[0][1], data[1][0], data[1][1], data[2][0], data[2][1], mean ,std
 
 if __name__ == "__main__":
     #expected dataformat of individual pairs
