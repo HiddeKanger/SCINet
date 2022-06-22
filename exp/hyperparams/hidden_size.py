@@ -7,11 +7,11 @@ import random
 import os
 import sys
 import math
+from preprocess_data import preprocess
 
 WORKDIR_PATH = os.path.dirname(os.path.realpath(__file__)) + "/../../"
 sys.path.insert(1, WORKDIR_PATH)
 
-from preprocess_data import preprocess
 from base.train_scinet import train_scinet
 
 WORKDIR_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -43,8 +43,7 @@ standardization_settings = {'per_sample': True,
 
 pairs = ["HUFL", "HULL", "MUFL", "MULL", "LUFL", "LULL", "OT"]
 
-#df = pd.read_csv(os.path.realpath(__file__) + f"/../data/Data_preprocessed/ETTh1.csv").dropna()
-df = pd.read_csv(f"~/Library/Mobile Documents/com~apple~CloudDocs/Documents/Studiedocumenten/2021-2022/ADL/SCINet_repo/exp/hyperparams/data/Binance_BTCUSDT_minute.csv").dropna()
+df = pd.read_csv(WORKDIR_PATH + "/data/Binance_BTCUSDT_minute.csv").dropna()
 df = df.swapaxes("index", "columns")
 
 data = {}
@@ -119,5 +118,5 @@ plt.xlim(xmin=0)
 plt.ylim(ymin=0)
 plt.title('Hidden size comparison', fontsize=15)
 plt.legend()
-plt.savefig(f"/Users/lindsayspoor/Library/Mobile Documents/com~apple~CloudDocs/Documents/Studiedocumenten/2021-2022/ADL/SCINet_repo/exp/hyperparams/results/Optimization_HiddenSize.pdf")
+plt.savefig("Optimization_HiddenSize.pdf")
 plt.show()
