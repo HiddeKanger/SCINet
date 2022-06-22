@@ -67,7 +67,7 @@ results = preprocess(   data = data,
 
 #================ Training ====================
 
-EPOCHS = 2
+EPOCHS = 10
 BATCH_SIZE = 8
 NUM_LEVELS = 3
 KERNEL_SIZE = 5
@@ -119,5 +119,5 @@ plt.xlim(xmin=0)
 plt.ylim(ymin=0)
 plt.title('Hidden size comparison', fontsize=15)
 plt.legend()
-plt.savefig(f"/results/Optimization_HiddenSize.pdf")
+plt.savefig(f"/Users/lindsayspoor/Library/Mobile Documents/com~apple~CloudDocs/Documents/Studiedocumenten/2021-2022/ADL/SCINet_repo/exp/hyperparams/results/Optimization_HiddenSize.pdf")
 plt.show()
