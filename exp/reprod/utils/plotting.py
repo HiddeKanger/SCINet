@@ -18,6 +18,8 @@ def plot_barplot_two(datasets, orig_maes, maes):
     plt.legend()
     plt.title('Comparison original and Tensorflow implementation')
 
+    plt.savefig('exp/reprod/results/comparison.pdf')
+
 
 def plot_barplot_three(datasets, orig_maes, maes, maes_leaky):
 
@@ -30,3 +32,5 @@ def plot_barplot_three(datasets, orig_maes, maes, maes_leaky):
     plt.ylabel('Mean absolute error')
     plt.legend()
     plt.title('Comparison original and Tensorflow implementation')
+
+    plt.savefig('exp/reprod/results/comparison_leaky.pdf')
