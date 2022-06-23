@@ -104,18 +104,15 @@ for idx, LEARNING_RATE in enumerate(LEARNING_RATES):
 
     val_loss = history.history['val_loss']
     val_losses[idx] = val_loss
+    
+    model.save(f'saved_models/model_learning_rate_{LEARNING_RATE}')
 
-plt.figure(figsize=(8,6))
 
-X = np.arange(EPOCHS)
-for idx, lr in enumerate(LEARNING_RATES):
-    plt.plot(X, val_losses[idx], label=f'lr = {lr}')
+from utils.plotting import plot_barplot
 
-plt.xlabel('Epochs', fontsize=15)
-plt.ylabel('Validation MAE', fontsize=15)
-plt.xlim(xmin=0)
-plt.ylim(ymin=0)
-plt.title('Learning rate comparison', fontsize=15)
-plt.legend()
-plt.savefig(f"Optimization_LearningRate.pdf")
-plt.show()
+
+hyperparameter_type='LearningRate'
+
+
+
+plot_barplot(LEARNING_RATES, val_losses, hyperparameter_type)
