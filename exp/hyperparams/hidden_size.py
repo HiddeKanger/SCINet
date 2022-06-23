@@ -105,18 +105,15 @@ for idx, HID_SIZE in enumerate(HIDDEN_SIZES):
 
     val_loss = history.history['val_loss']
     val_losses[idx] = val_loss
+    
+    model.save(f'saved_models/model_hidden_size_{HID_SIZE}')
 
-plt.figure(figsize=(8,6))
 
-X = np.arange(EPOCHS)
-for idx, hs in enumerate(HIDDEN_SIZES):
-    plt.plot(X, val_losses[idx], label=f'hidden size = {hs}')
+from utils.plotting import plot_barplot
 
-plt.xlabel('Epochs', fontsize=15)
-plt.ylabel('Validation MAE', fontsize=15)
-plt.xlim(xmin=0)
-plt.ylim(ymin=0)
-plt.title('Hidden size comparison', fontsize=15)
-plt.legend()
-plt.savefig("Optimization_HiddenSize.pdf")
-plt.show()
+
+hyperparameter_type='HiddenSize'
+
+
+
+plot_barplot(HIDDEN_SIZES, val_losses, hyperparameter_type)
