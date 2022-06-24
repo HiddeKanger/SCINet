@@ -21,9 +21,10 @@ The SCINet training notebook serves as a first introduction to SCINet and introd
 
 
 ## Results Reproduction
-Here some of the results of the original SCINet paper are being reproduced. The original paper contained a lot of datasets with multiple hyperparameter combinations. 4 of them are being reproduced, 3 of which are of the different Electrical Transformer Temperature datasets (ETTh1, ETTh2, ETTm1). And the exchange rate dataset. For each dataset the best performing hyperparameter combination is chosen.
+Here some of the results of the original SCINet paper are reproduced. Particularly, we will reproduce the results obtained using optimal hyperparameter settings on the different Electrical Transformer Temperature datasets (ETTh1, ETTh2, ETTm1). We conclude that our implementation performs similar to the original implementation under the assumption that a leaky form of preprocessing is performed. 
 
 ## Hyperparameter optimization
+Here, we study the affect of different hyperparameters on the performance capabilities of SCINet on minute Bitcoin data. This includes both settings concerning the preprocessing stage as well as during training. In the former case it is shown that for this set, per sample normalisation outperforms its per column counterpart. For the latter hyperparameters, code is provided to easily vary any hyperparameter of choice. For the 'hid_size' sweep, the best one is chosen and further analysis is performed. This includes showing individual predictions as well as comparing it to a constant predictor. We conclude that SCINet can outperform such a constant predictor.
 
 
 ## Solar Dataset 
@@ -45,8 +46,3 @@ As we are dealing with a highly asynchronous system the different components des
 
 The dlive demo shows three plots below each other: the best bid and ask (and halfway price) as retrieved from the websocket, the preprocessed data sample + prediction (in red below) and the live total equity from top to bottom respectively. 
 ![live_trading](exp/live_trading/dashboard.jpg "Live Trading System")
-
-
-
-## Probabilistic SCINet
-TODO
