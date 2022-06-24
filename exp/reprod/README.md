@@ -1,31 +1,13 @@
 # Reproduction of Paper Results
 
 
-The experiments in this folder (reprod) are set up in order to reproduce and compare the results from the original paper.
-It uses the datasets ETTh1, ETTh2, ETTm1 and exchange_rate. In each experiment, the dataset is first preprocessed, and afterwards
-the SCINet is trained on the data. Next, the results of the MAE loss are compared against the MAE value of the original paper,
-and the predictions made by SCINet based on the given dataset are plotted as well.
+This folder contains the files used for reproducing the results found by the SCINet model from the original paper. The datasets used by the orignal paper are used in order to evaluate the performance of our model. The original hyperparameter settings used by the paper are used here.
 
 
-# Table of contents
+Files:
 
-- data (folder):
-    - Data_original (folder): datasets used by the original paper
-    - Data_preprocessed (folder): datasets used by the experiments, preprocessed such that they are compatible for the experiments
-- results (folder): contains the results of the loss and the predictions produced by the experiments
-- experiment_ETTh1.py: experiment using the ETTh1.csv dataset
-- experiment_ETTh2.py: experiment using the ETTh2.csv dataset
-- experiment_ETTm1.py: experiment using the ETTm1.csv dataset
-- experiment_exchange_rate.py: experiment using the exchange_rate.csv dataset
-
-The files experiment_ETTh1.py, experiment_ETTh2.py, experiment_ETTm1.py use the hyperparameter settings corresponding to the horizon
-of 24 (Y_LEN=24), and experiment_exchange_rate.py the hyperparameter settings corresponding to the horizon of 12 (Y_LEN=12).
-
-The hyperparameter settings can be found at https://github.com/cure-lab/SCINet/blob/main/Appendix/Appendix.pdf
-
-# Running the experiments
-
-In order to run the experiments, make sure to use an environment in which Tensorflow 2.x is installed. Running can be done by executing 
-"python experiment_X.py" from the command line.
-If you want to run experiments for 150 epochs make sure that 'patience' is turned off in the train_scinet function in the train_scinet.py
-file in the base folder.
+- `data/`: contains the folders `Data_original/` and `Data_preprocessed/` which contain the datasets used by the orignal paper, and those datasets reshaped for our model respectively,
+- `saved_models/`: contains all the saved weights of the trained models
+- `utils/`: several supporting files used by the reproduction of the results
+- `results/`: results, plots outputted by the scripts in this folder
+- `reprod_experiments.ipynb`: Evaluates the difference between the leaky Tensorflow implementation and and the non-leaky variant in order to compare the difference in the results between the techniques used by the orignal paper and our implementation, as well as evaluate the model's performance.
