@@ -19,9 +19,9 @@ sys.path.insert(1, WORKDIR_PATH)
 
 #============= Preprocessing ==============
 
-#data_format = ["timestamp","open","high","low","close","volume",]
+
 data_format=["open","high","low","close","Volume BTC","Volume USDT","tradecount"]
-#data_format = ["price"]
+
                     
 fraction_used = 1
 train_frac = 0.6
